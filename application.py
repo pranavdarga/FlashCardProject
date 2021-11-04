@@ -82,7 +82,7 @@ def get_decks():
     decks = Decks.query.all()
     output = []
     for deck in decks:
-        deck_data = {'deckname': deck.deckname, 'userid': deck.userid}
+        deck_data = {'deckid': deck.deckid, 'deckname': deck.deckname, 'userid': deck.userid}
         output.append(deck_data)
     return {"decks": output}
 
