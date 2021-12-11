@@ -13,8 +13,8 @@ export default function ReviewDeck() {
     return (
         <div className='container'>
             {<Card card={cards[currentCardIndex]} />}
-            <button onClick={() => setCurrentCardIndex(currentCardIndex - 1)}>Previous</button>
-            <button onClick={() => setCurrentCardIndex(currentCardIndex + 1)}>Next</button>
+            <button onClick={() => setCurrentCardIndex(currentCardIndex - 1)} disabled={currentCardIndex < 1}>Previous</button>
+            <button onClick={() => setCurrentCardIndex(currentCardIndex + 1)} disabled={currentCardIndex + 1 >= cards.length}>Next</button>
         </div>
     );
 }
