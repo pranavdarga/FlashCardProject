@@ -1,10 +1,12 @@
-import { useRecoilValue } from "recoil";
-import { CurrentDeckCards } from "../atoms";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { CurrentDeckCards, PageNumberAtom } from "../atoms";
 import { useState, useEffect } from "react";
+import PageNumbers from "../PageNumbers";
 
 export default function ReviewDeck() {
     const cards = useRecoilValue(CurrentDeckCards).data.cards;
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
+    const setPageNumber = useSetRecoilState(PageNumberAtom);
     
     if (cards == null) {
         return null;
@@ -15,6 +17,7 @@ export default function ReviewDeck() {
             {<Card card={cards[currentCardIndex]} />}
             <button onClick={() => setCurrentCardIndex(currentCardIndex - 1)} disabled={currentCardIndex < 1}>Previous</button>
             <button onClick={() => setCurrentCardIndex(currentCardIndex + 1)} disabled={currentCardIndex + 1 >= cards.length}>Next</button>
+            <button onClick={() => setPageNumber(PageNumbers.DECK_LIST)}>Return to home</button>
         </div>
     );
 }
