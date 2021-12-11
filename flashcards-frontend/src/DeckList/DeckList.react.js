@@ -36,8 +36,10 @@ export default function DeckList() {
         <div className='container'>
             <div>
                 {deckList.map(deck => <div key={uuidv4()} className='deckEntry' onClick={async () => {
-                    const cards = await axios.get('http://127.0.0.1:5000/decks/' + deck.deckid);
+                    const response = await axios.get(`http://127.0.0.1:5000/deck_cards/${deck.deckid}`);
+                    const cards = response.data.cards;
                     setCurrentDeckCards(cards);
+                    console.log(cards);
                     setPageNumber(PageNumbers.REVIEW_DECK);
                 }}>{deck.deckname}</div>)}
             </div>
@@ -51,6 +53,6 @@ export default function DeckList() {
 }
 
 async function getDeckList(userID) {
-    const deckList = await axios.get(`http://127.0.0.1:5000/decks/${userID}`);
+    const deckList = await axios.get(`http://127.0.0.1:5000/user_decks/${userID}`);
     return deckList.data.decks;
 }

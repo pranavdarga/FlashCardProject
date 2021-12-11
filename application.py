@@ -95,7 +95,7 @@ config = {
 }
 config['database'] = 'flashcards'  # add new database to config dict
 
-@app.route('/decks/<userid>')
+@app.route('/user_decks/<userid>')
 def get_decks(userid):
     # mysql
     cnxn = mysql.connector.connect(**config)
@@ -122,24 +122,35 @@ def get_cards():
         output.append(deck_data)
     return {"cards": output}
 
-@app.route('/decks/<deckid>')
+@app.route('/deck_cards/<deckid>')
 def get_deck(deckid):
-    # original
-    deck = Decks.query.get_or_404(deckid)
-    # card = cards.query.all()
-    # output = []
-    # for c in cards:
-    #     card_data = {'cardname': card.cardname, 'question': card.question, 'answer': card.answer}
-    #     output.append(card_data)
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor()
+    
+    cursor.execute("SELECT cardid, question, answer, topic FROM cards WHERE deckid=%s", (deckid, ))
 
-    cards1 = cards.query.all()
-    output = []
-    for card in cards1:
-        if int(card.deckid) == int(deckid):
-            deck_data = {'cardname': card.cardname, 'deckid': card.deckid, 'question': card.question, 'answer': card.answer}
-            output.append(deck_data)
-    #return {"cards": output}
-    return {"deckname": deck.deckname, "userid": deck.userid, "cards": output}
+    output = [{'cardid': x[0], 'question': x[1], 'answer': x[2], 'topic': x[3]} for x in cursor]
+
+    cnxn.close()
+
+    return jsonify({"cards": output})
+
+    # # original
+    # deck = Decks.query.get_or_404(deckid)
+    # # card = cards.query.all()
+    # # output = []
+    # # for c in cards:
+    # #     card_data = {'cardname': card.cardname, 'question': card.question, 'answer': card.answer}
+    # #     output.append(card_data)
+
+    # cards1 = cards.query.all()
+    # output = []
+    # for card in cards1:
+    #     if int(card.deckid) == int(deckid):
+    #         deck_data = {'cardname': card.cardname, 'deckid': card.deckid, 'question': card.question, 'answer': card.answer}
+    #         output.append(deck_data)
+    # #return {"cards": output}
+    # return {"deckname": deck.deckname, "userid": deck.userid, "cards": output}
 
     # return {"deckname": deck.deckname, "userid": deck.userid}
 #create a deck POST
@@ -151,18 +162,41 @@ def get_deck(deckid):
 #db.session.commit()
 @app.route('/createdeck', methods=['POST'])
 def create_deck():
+    userid = request.json['userid']
+    deckname = request.json['deckname']
+    cards = request.json['cards']
+
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor(buffered=True)
+
+    # generate deckid
+    deckid = random.randint(0, INT_MAX_SQL)
+    cursor.execute("SELECT * FROM decks WHERE deckid = %s", (userid, ))
+
+    while cursor.rowcount > 0:
+        deckid = random.randint(0, INT_MAX_SQL)
+        cursor.execute("SELECT * FROM decks WHERE deckid = %s", (deckid, ))
+
     # get deckname and insert into deck
+    cursor.execute("INSERT INTO decks VALUES (%s, %s, %s, %s)", (deckid, userid, deckname, userid))
+    cnxn.commit()
+
+    # insert cards
+    for card in cards:
+        # generate new card id
+        cardid = random.randint(0, INT_MAX_SQL)
+        cursor.execute("SELECT * FROM cards WHERE cardid = %s", (cardid, ))
+
+        while cursor.rowcount > 0:
+            cardid = random.randint(0, INT_MAX_SQL)
+            cursor.execute("SELECT * FROM cards WHERE cardid = %s", (cardid, ))
+
+        # insert card into deck
+        data = (cardid, deckid, userid, card['question'], card['answer'], card['topic'])
+        cursor.execute("INSERT INTO cards VALUES (%s, %s, %s, %s, %s, %s)", data)
     
-    deck = Decks(deckname=request.json['deckname'],userid=request.json['userid'])
-    db.session.add(deck)
-    db.session.commit()
-    d = Decks.query.all()
-    deckid = d[len(d)-1].deckid
-    for cd in request.json['cards']:
-        card = cards(cardname = cd['cardname'], deckid = deckid, question = cd['question'], answer = cd['answer'])
-        db.session.add(card)
-        db.session.commit()
-    #db.session.commit()
+    cnxn.commit()
+    cnxn.close()
 
     return jsonify({"name": "success"})
 
@@ -184,6 +218,7 @@ def login():
     cnxn.close()
     
     return jsonify({'status': 'OK', 'userid': userid}) if userid != INVALID_USER_ID else jsonify({'status': 'invalid'})
+
 @app.route('/register', methods=['POST'])
 def register():
     username_from_user = request.json['username']

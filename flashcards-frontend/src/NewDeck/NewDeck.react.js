@@ -3,20 +3,19 @@ import { useState, useCallback } from "react";
 import './NewDeck.css';
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { UserIDAtom, PageNumberAtom } from "../atoms";
-import { v4 as uuidv4 } from 'uuid';
 import axios from "axios";
 
 import PageNumbers from "../PageNumbers";
 
 export default function NewDeck() {
     const userID = useRecoilValue(UserIDAtom);
-    console.log(userID)
 
     const [deckName, setDeckName] = useState('');
     const [cards, setCards] = useState([]);
 
     const [currentCardFront, setCurrentCardFront] = useState('');
     const [currentCardBack, setCurrentCardBack] = useState('');
+    const [currentCardTopic, setCurrentCardTopic] = useState('');
 
     const setPageNumber = useSetRecoilState(PageNumberAtom);
 
@@ -29,33 +28,34 @@ export default function NewDeck() {
     const addNewCard = useCallback(() => {
         const cardsCopy = [...cards];
         cardsCopy.push({
-            cardname: uuidv4(),
             question: currentCardFront,
-            answer: currentCardBack
+            answer: currentCardBack,
+            topic: currentCardTopic
         });
         setCards(cardsCopy);
 
         // API call to change deck here
-    }, [cards, currentCardBack, currentCardFront]);
+    }, [cards, currentCardBack, currentCardFront, currentCardTopic]);
 
     const saveDeck = useCallback(() => {
         const data = {
             deckname: deckName,
-            userid: 10, // replace with actual user ID
+            userid: userID, // replace with actual user ID
             cards
         };
 
-        console.log(data);
         axios.post('http://127.0.0.1:5000/createdeck', data);
         setPageNumber(PageNumbers.DECK_LIST);
-    }, [cards, deckName, setPageNumber]);
+    }, [cards, deckName, setPageNumber, userID]);
 
     return (
         <div className='container'>
             <div className='inputContainer'>
-                <input type='text' className='titleEntryBox' placeholder='Enter title here' onChange={e => updateTitle(e.target.value)} value={deckName} />
+                <input type='text' className='titleEntryBox' placeholder='Enter title of deck here' onChange={e => updateTitle(e.target.value)} value={deckName} />
                 <input type='text' className='newCardFront' placeholder='Enter question here' onChange={e => setCurrentCardFront(e.target.value)} value={currentCardFront} />
                 <input type='text' className='newCardBack' placeholder='Enter answer here' onChange={e => setCurrentCardBack(e.target.value)} value={currentCardBack} />
+                <input type='text' className='newCardTopic' placeholder='Enter topic here (optional)' onChange={e => setCurrentCardTopic(e.target.value)} value={currentCardTopic} />
+
                 <button onClick={addNewCard}>Add new card</button>
             </div>
             <div className='existingCardsContainer'>
@@ -63,6 +63,8 @@ export default function NewDeck() {
                     <div className='card'>
                         <div className='cardFront'><strong>Front: </strong>{card.question}</div>
                         <div className='cardBack'><strong>Back: </strong>{card.answer}</div>
+                        <div className='cardTopic'><i>Topic: {card.topic}</i></div>
+
                     </div>
                 ))}
             </div>

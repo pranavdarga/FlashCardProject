@@ -5,7 +5,7 @@ import PageNumbers from "../PageNumbers";
 import axios from "axios";
 
 export default function ReviewDeck() {
-    const cards = useRecoilValue(CurrentDeckCards).data.cards;
+    const cards = useRecoilValue(CurrentDeckCards);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const setPageNumber = useSetRecoilState(PageNumberAtom);
 
