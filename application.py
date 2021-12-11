@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 
 INVALID_USER_ID = -1
-INT_MAXSQL = 2147483647
+INT_MAX_SQL = 2147483647
 
 #set FLASK_APP=application.py
 #set FLASK_ENV=development
@@ -159,11 +159,11 @@ def create_deck():
     cursor = cnxn.cursor(buffered=True)
 
     # generate deckid
-    deckid = random.randint(0, INT_MAXSQL)
+    deckid = random.randint(0, INT_MAX_SQL)
     cursor.execute("SELECT * FROM decks WHERE deckid = %s", (userid, ))
 
     while cursor.rowcount > 0:
-        deckid = random.randint(0, INT_MAXSQL)
+        deckid = random.randint(0, INT_MAX_SQL)
         cursor.execute("SELECT * FROM decks WHERE deckid = %s", (deckid, ))
 
     # get deckname and insert into deck
@@ -173,11 +173,11 @@ def create_deck():
     # insert cards
     for card in cards:
         # generate new card id
-        cardid = random.randint(0, INT_MAXSQL)
+        cardid = random.randint(0, INT_MAX_SQL)
         cursor.execute("SELECT * FROM cards WHERE cardid = %s", (cardid, ))
 
         while cursor.rowcount > 0:
-            cardid = random.randint(0, INT_MAXSQL)
+            cardid = random.randint(0, INT_MAX_SQL)
             cursor.execute("SELECT * FROM cards WHERE cardid = %s", (cardid, ))
 
         # insert card into deck
@@ -217,3 +217,37 @@ def login():
     cnxn.close()
     
     return jsonify({'status': 'OK', 'userid': userid}) if userid != INVALID_USER_ID else jsonify({'status': 'invalid'})
+@app.route('/register', methods=['POST'])
+def register():
+    username_from_user = request.json['username']
+    password_from_user = request.json['password']
+
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor(buffered=True)
+
+    cursor.execute("SELECT * FROM accounts WHERE username=%s", (username_from_user, ))
+
+    userid = INVALID_USER_ID
+    for t in cursor:
+        userid, _, _ = t
+
+    # username already exists
+    if userid != INVALID_USER_ID:
+        cnxn.close()
+        return jsonify({'status': 'invalid'})
+
+    # create new username
+    else:
+        # generate new userid
+        userid = random.randint(0, INT_MAX_SQL)
+        cursor.execute("SELECT * FROM accounts WHERE userid = %s", (userid, ))
+        print(cursor.rowcount)
+
+        while cursor.rowcount > 0:
+            userid = random.randint(0, INT_MAX_SQL)
+            cursor.execute("SELECT * FROM accounts WHERE userid = %s", (userid, ))
+
+        cursor.execute("INSERT INTO accounts (userid, username, password) VALUES (%s, %s, %s)", (userid, username_from_user, password_from_user))
+        cnxn.commit()
+        cnxn.close()
+        return jsonify({'status': 'OK', 'userid': userid})

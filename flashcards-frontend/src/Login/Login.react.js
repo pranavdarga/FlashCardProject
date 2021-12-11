@@ -38,6 +38,25 @@ export default function Login() {
                     setPassword("");
                 }
             }}>Login</button>
+            <button onClick={async() => {
+                const data = {
+                    username,
+                    password
+                };
+
+                const response = await axios.post('http://127.0.0.1:5000/register', data)
+                // console.log(response);
+                const status = response.data.status;
+
+                if (status == "OK") {
+                    const userid = response.data.userid;
+                    setUserID(userid);
+                    setPageNumber(PageNumbers.DECK_LIST);
+                } else {
+                    setPassword("");
+                }
+
+            }}>Register</button>
         </div>
     )
 }
