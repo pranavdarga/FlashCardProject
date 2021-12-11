@@ -8,6 +8,7 @@ export default function ReviewDeck() {
     const cards = useRecoilValue(CurrentDeckCards);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const setPageNumber = useSetRecoilState(PageNumberAtom);
+    const userid = useRecoilValue(UserIDAtom);
 
     if (cards == null) {
         return null;
@@ -17,14 +18,25 @@ export default function ReviewDeck() {
         <div className='container'>
             {<Card card={cards[currentCardIndex]} />}
             <button onClick={() => setCurrentCardIndex(currentCardIndex - 1)} disabled={currentCardIndex < 1}>Previous</button>
-            <button onClick={() => setCurrentCardIndex(currentCardIndex + 1)} disabled={currentCardIndex + 1 >= cards.length}>Next</button>
+            <button onClick={async () => 
+                {
+                    const data = {
+                        cardid: cards[currentCardIndex].cardid,
+                        time: new Date().toISOString().slice(0, 19).replace('T', ' '),
+                        userid: userid
+                    };
+                    
+                    const response = await axios.post('http://127.0.0.1:5000/cardhistory', data);
+                    const status = response.data.status;
+
+                    setCurrentCardIndex(currentCardIndex + 1)
+                }} disabled={currentCardIndex + 1 >= cards.length}>Next</button>
             <button onClick={() => setPageNumber(PageNumbers.DECK_LIST)}>Return to home</button>
         </div>
     );
 }
 
 function Card({card}) {
-    const userid = useRecoilValue(UserIDAtom);
     const [revealed, setRevealed] = useState(false);
 
     // hide answer when we change cards
@@ -33,26 +45,11 @@ function Card({card}) {
     }, [card]);
 
     return (
-        <div className='card' onClick={async () => {
-            const time = Date.getTime();
-            const data = {
-                cardid: card.cardid,
-                time: time,
-                userid: userid
-            };
-            
-            const response = await axios.post('http://127.0.0.1:5000/cardhistory', data);
-            const status = response.data.status;
-            
-            if (status=='OK') {
-                setRevealed(!revealed)
-            }
-            else {
-                console.log("Error adding to cardhistory");
-            }
-        }}>
+        <div className='card' onClick={() => setRevealed(!revealed)}>
             <div>{card.question}</div>
             {revealed && <div>{card.answer}</div>}
+            {revealed && <div><i>{card.topic}</i></div>}
+
         </div>
     );
 }
