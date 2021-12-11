@@ -14,7 +14,6 @@ export default function DeckList() {
 
     const [deckList, setDeckList] = useState([]);
 
-
     useEffect(() => {
         async function updateDeckList() {
             const newDeckList = await getDeckList(userID);
@@ -52,6 +51,6 @@ export default function DeckList() {
 }
 
 async function getDeckList(userID) {
-    const deckList = await axios.get('http://127.0.0.1:5000/decks');
+    const deckList = await axios.get(`http://127.0.0.1:5000/decks/${userID}`);
     return deckList.data.decks;
 }

@@ -95,15 +95,23 @@ config = {
 }
 config['database'] = 'flashcards'  # add new database to config dict
 
-@app.route('/decks')
-def get_decks():
-    # original
-    decks = Decks.query.all()
+@app.route('/decks/<userid>')
+def get_decks(userid):
+    # mysql
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor()
+    
+    cursor.execute("SELECT deckid, deckname FROM decks WHERE userid=%s", (userid, ))
+
     output = []
-    for deck in decks:
-        deck_data = {'deckid': deck.deckid, 'deckname': deck.deckname, 'userid': deck.userid}
+    for deck_values in cursor:
+        deckid, deckname = deck_values
+        deck_data = {'deckid': deckid, 'deckname': deckname}
         output.append(deck_data)
-    return {"decks": output}
+
+    cnxn.close()
+    
+    return jsonify({"decks": output})
 
 @app.route('/cards')
 def get_cards():
@@ -116,6 +124,7 @@ def get_cards():
 
 @app.route('/decks/<deckid>')
 def get_deck(deckid):
+    # original
     deck = Decks.query.get_or_404(deckid)
     # card = cards.query.all()
     # output = []
