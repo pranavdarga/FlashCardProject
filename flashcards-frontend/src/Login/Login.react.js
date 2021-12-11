@@ -21,16 +21,12 @@ export default function Login() {
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder='Enter password'/>
             </div>
             <button onClick={async () => {
-                const userid = 20; // fill in API function here to get user ID
-
                 const data = {
                     username,
                     password
                 };
         
-                console.log(data);
                 const response = await axios.post('http://127.0.0.1:5000/login', data);
-                console.log(response);
 
                 const status = response.data.status;
 
