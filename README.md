@@ -1,4 +1,4 @@
-# FlashCardProject
+# FlashCardProject Python
 
 1.
 ```
@@ -13,7 +13,16 @@ export FLASK_ENV=development
 flask run
 ```
 
-### For Google Cloud
+# React
+
+```
+cd flashcards-frontend
+yarn install
+npm start
+
+```
+
+# For Google Cloud
 Connect via terminal: Make sure you're in the root directory. Then,
 
 ```
