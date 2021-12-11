@@ -218,3 +218,17 @@ def register():
         cnxn.commit()
         cnxn.close()
         return jsonify({'status': 'OK', 'userid': userid})
+
+@app.route('/cardhistory', methods=['POST'])
+def cardHistory():
+    cardid_from_user = request.json['cardid']
+    time_from_user = request.json['time']
+    userid_from_user = request.json['userid']
+
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor(buffered=True)
+
+    cursor.execute("INSERT INTO cardHistory (cardid, time, userid) VALUES (%s, %s, %s)", (cardid_from_user, time_from_user, userid_from_user))
+    cnxn.commit()
+    cnxn.close()
+    return jsonify({'status': 'OK'})

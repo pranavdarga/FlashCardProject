@@ -45,7 +45,6 @@ export default function Login() {
                 };
 
                 const response = await axios.post('http://127.0.0.1:5000/register', data)
-                // console.log(response);
                 const status = response.data.status;
 
                 if (status == "OK") {
