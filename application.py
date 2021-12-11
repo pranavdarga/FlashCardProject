@@ -165,8 +165,6 @@ def login():
 
     cursor.execute("SELECT * FROM accounts WHERE username=%s AND password=%s", (username_from_user, password_from_user))
 
-    print("OUTPUT FROM GOOGLE CLOUD QUERY")
-
     userid = INVALID_USER_ID
     for t in cursor:
         userid, _, _ = t
