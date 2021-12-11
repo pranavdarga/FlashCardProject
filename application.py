@@ -168,5 +168,7 @@ def login():
     userid = INVALID_USER_ID
     for t in cursor:
         userid, _, _ = t
+
+    cnxn.close()
     
     return jsonify({'status': 'OK', 'userid': userid}) if userid != INVALID_USER_ID else jsonify({'status': 'invalid'})
