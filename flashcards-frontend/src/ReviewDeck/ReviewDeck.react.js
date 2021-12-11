@@ -1,16 +1,14 @@
 import { useRecoilValue } from "recoil";
 import { CurrentDeckCards } from "../atoms";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ReviewDeck() {
-    const cards = useRecoilValue(CurrentDeckCards);
+    const cards = useRecoilValue(CurrentDeckCards).data.cards;
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     
     if (cards == null) {
         return null;
     }
-
-    console.log(cards[currentCardIndex]);
 
     return (
         <div className='container'>
@@ -24,8 +22,13 @@ export default function ReviewDeck() {
 function Card({card}) {
     const [revealed, setRevealed] = useState(false);
 
+    // hide answer when we change cards
+    useEffect(() => {
+        setRevealed(false)
+    }, [card]);
+
     return (
-        <div className='card' onClick={setRevealed(true)}>
+        <div className='card' onClick={() => setRevealed(!revealed)}>
             <div>{card.question}</div>
             {revealed && <div>{card.answer}</div>}
         </div>
