@@ -3,5 +3,6 @@ module.exports = {
     DECK_LIST: 1,
     NEW_DECK: 2,
     REVIEW_DECK: 3,
-    EDIT_DECK: 4
+    EDIT_DECK: 4,
+    ANALYTICS: 5
 }

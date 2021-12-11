@@ -59,6 +59,7 @@ export default function DeckList() {
             <button onClick={() => setPageNumber(PageNumbers.EDIT_DECK)} disabled={!isDeckSelected}>
                 {isDeckSelected ? `Edit ${currentDeckName}` : 'Select a deck to edit'}
             </button>
+            <button onClick={() => setPageNumber(PageNumbers.ANALYTICS)}>Explore your analytics</button>
         </div>
     )
 }
