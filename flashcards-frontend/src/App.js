@@ -17,7 +17,6 @@ function App() {
     <DeckList userId='test' key={PageNumbers.DECK_LIST} />,
     <NewDeck userID='test' key={PageNumbers.NEW_DECK} />,
     <ReviewDeck key={PageNumbers.REVIEW_DECK} />,
-    null,
     <Analytics />
   ];
 

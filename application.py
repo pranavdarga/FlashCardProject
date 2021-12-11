@@ -42,21 +42,17 @@ def get_decks(userid):
     output = []
     for deck_values in cursor:
         deckid, deckname = deck_values
-        deck_data = {'deckid': deckid, 'deckname': deckname}
+
+        # TODO: add in last_reviewed_string - how long ago this deck was last reviewed by this user as a pretty string
+        # e.g. 'two days ago', 'a month ago', etc. - NOT a timestamp
+        # TODO: add in num_cards
+
+        deck_data = {'deckid': deckid, 'deckname': deckname, 'num_cards': 10, 'last_reviewed_string': 'about a week ago'}
         output.append(deck_data)
 
     cnxn.close()
     
     return jsonify({"decks": output})
-
-@app.route('/cards')
-def get_cards():
-    cards1 = cards.query.all()
-    output = []
-    for card in cards1:
-        deck_data = {'cardname': card.cardname, 'deckid': card.deckid, 'question': card.question, 'answer': card.answer}
-        output.append(deck_data)
-    return {"cards": output}
 
 @app.route('/deck_cards/<deckid>')
 def get_deck(deckid):
@@ -65,7 +61,7 @@ def get_deck(deckid):
     
     cursor.execute("SELECT cardid, question, answer, topic FROM cards WHERE deckid=%s", (deckid, ))
 
-    output = [{'cardid': x[0], 'question': x[1], 'answer': x[2], 'topic': x[3]} for x in cursor]
+    output = [{'cardid': x[0], 'deckid': deckid, 'question': x[1], 'answer': x[2], 'topic': x[3]} for x in cursor]
 
     cnxn.close()
 

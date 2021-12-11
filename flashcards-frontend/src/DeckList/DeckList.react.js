@@ -34,9 +34,6 @@ export default function DeckList() {
     }, [userID]);
 
     const isDeckSelected = currentDeckCards.length > 0 && currentDeckName.length > 0;
-    console.log(isDeckSelected);
-    console.log(currentDeckCards);
-    console.log(currentDeckName)
 
     return (
         <div className='container'>
@@ -46,7 +43,7 @@ export default function DeckList() {
                     const cards = response.data.cards;
                     setCurrentDeckCards(cards);
                     setCurrentDeckName(deck.deckname);
-                }}>{deck.deckname}</div>)}
+                }}>{deck.deckname} ({deck.num_cards} cards, last reviewed {deck.last_reviewed_string})</div>)}
             </div>
             <button onClick={() => {
                 setPageNumber(PageNumbers.LOGIN);
@@ -55,9 +52,6 @@ export default function DeckList() {
             <button onClick={() => setPageNumber(PageNumbers.NEW_DECK)}>Add new deck</button>
             <button onClick={() => setPageNumber(PageNumbers.REVIEW_DECK)} disabled={!isDeckSelected}>
                 {isDeckSelected ? `Review ${currentDeckName}` : 'Select a deck to review'}
-            </button>
-            <button onClick={() => setPageNumber(PageNumbers.EDIT_DECK)} disabled={!isDeckSelected}>
-                {isDeckSelected ? `Edit ${currentDeckName}` : 'Select a deck to edit'}
             </button>
             <button onClick={() => setPageNumber(PageNumbers.ANALYTICS)}>Explore your analytics</button>
         </div>
