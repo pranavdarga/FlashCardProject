@@ -1,5 +1,5 @@
 import './DeckList.css'
-import { useRecoilValue, useSetRecoilState, useResetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState, useResetRecoilState, useRecoilState } from 'recoil';
 import { UserIDAtom, PageNumberAtom, CurrentDeckCards } from '../atoms';
 import PageNumbers from '../PageNumbers';
 import axios from 'axios';
@@ -9,10 +9,11 @@ import {v4 as uuidv4} from 'uuid';
 export default function DeckList() {
     const userID = useRecoilValue(UserIDAtom);
     const setPageNumber = useSetRecoilState(PageNumberAtom);
-    const setCurrentDeckCards = useSetRecoilState(CurrentDeckCards);
-    const resetuserID = useResetRecoilState(UserIDAtom);
+    const [currentDeckCards, setCurrentDeckCards] = useRecoilState(CurrentDeckCards);
+    const resetUserID = useResetRecoilState(UserIDAtom);
 
     const [deckList, setDeckList] = useState([]);
+    const [currentDeckName, setCurrentDeckName] = useState('');
 
     useEffect(() => {
         async function updateDeckList() {
@@ -31,6 +32,11 @@ export default function DeckList() {
 
         updateDeckList();
     }, [userID]);
+
+    const isDeckSelected = currentDeckCards.length > 0 && currentDeckName.length > 0;
+    console.log(isDeckSelected);
+    console.log(currentDeckCards);
+    console.log(currentDeckName)
 
     return (
         <div className='container'>
@@ -39,15 +45,20 @@ export default function DeckList() {
                     const response = await axios.get(`http://127.0.0.1:5000/deck_cards/${deck.deckid}`);
                     const cards = response.data.cards;
                     setCurrentDeckCards(cards);
-                    console.log(cards);
-                    setPageNumber(PageNumbers.REVIEW_DECK);
+                    setCurrentDeckName(deck.deckname);
                 }}>{deck.deckname}</div>)}
             </div>
             <button onClick={() => {
-                setPageNumber(PageNumbers.LOGIN)
-                resetuserID()
+                setPageNumber(PageNumbers.LOGIN);
+                resetUserID();
             }}>Log out</button>
             <button onClick={() => setPageNumber(PageNumbers.NEW_DECK)}>Add new deck</button>
+            <button onClick={() => setPageNumber(PageNumbers.REVIEW_DECK)} disabled={!isDeckSelected}>
+                {isDeckSelected ? `Review ${currentDeckName}` : 'Select a deck to review'}
+            </button>
+            <button onClick={() => setPageNumber(PageNumbers.EDIT_DECK)} disabled={!isDeckSelected}>
+                {isDeckSelected ? `Edit ${currentDeckName}` : 'Select a deck to edit'}
+            </button>
         </div>
     )
 }
