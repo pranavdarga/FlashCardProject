@@ -12,3 +12,12 @@ export FLASK_APP=application.py
 export FLASK_ENV=development
 flask run
 ```
+
+### For Google Cloud
+Connect via terminal: Make sure you're in the root directory. Then,
+
+```
+mysql -uroot -p -h 34.70.158.171 --ssl-ca=ssl/server-ca.pem --ssl-cert=ssl/client-cert.pem --ssl-key=ssl/client-key.pem
+```
+
+Password is `cs348`.
