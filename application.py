@@ -6,10 +6,13 @@ from flask_sqlalchemy import SQLAlchemy
 import mysql.connector
 from mysql.connector.constants import ClientFlag
 
+import random
+
 app = Flask(__name__)
 CORS(app)
 
 INVALID_USER_ID = -1
+INT_MAX_SQL = 2147483647
 
 #set FLASK_APP=application.py
 #set FLASK_ENV=development
@@ -172,3 +175,37 @@ def login():
     cnxn.close()
     
     return jsonify({'status': 'OK', 'userid': userid}) if userid != INVALID_USER_ID else jsonify({'status': 'invalid'})
+@app.route('/register', methods=['POST'])
+def register():
+    username_from_user = request.json['username']
+    password_from_user = request.json['password']
+
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor(buffered=True)
+
+    cursor.execute("SELECT * FROM accounts WHERE username=%s", (username_from_user, ))
+
+    userid = INVALID_USER_ID
+    for t in cursor:
+        userid, _, _ = t
+
+    # username already exists
+    if userid != INVALID_USER_ID:
+        cnxn.close()
+        return jsonify({'status': 'invalid'})
+
+    # create new username
+    else:
+        # generate new userid
+        userid = random.randint(0, INT_MAX_SQL)
+        cursor.execute("SELECT * FROM accounts WHERE userid = %s", (userid, ))
+        print(cursor.rowcount)
+
+        while cursor.rowcount > 0:
+            userid = random.randint(0, INT_MAX_SQL)
+            cursor.execute("SELECT * FROM accounts WHERE userid = %s", (userid, ))
+
+        cursor.execute("INSERT INTO accounts (userid, username, password) VALUES (%s, %s, %s)", (userid, username_from_user, password_from_user))
+        cnxn.commit()
+        cnxn.close()
+        return jsonify({'status': 'OK', 'userid': userid})
