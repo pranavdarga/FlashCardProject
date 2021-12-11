@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import PageNumbers from "../PageNumbers";
 
 export default function ReviewDeck() {
-    const cards = useRecoilValue(CurrentDeckCards).data.cards;
+    const cards = useRecoilValue(CurrentDeckCards);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const setPageNumber = useSetRecoilState(PageNumberAtom);
     

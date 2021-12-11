@@ -122,24 +122,35 @@ def get_cards():
         output.append(deck_data)
     return {"cards": output}
 
-@app.route('/decks/<deckid>')
+@app.route('/deck_cards/<deckid>')
 def get_deck(deckid):
-    # original
-    deck = Decks.query.get_or_404(deckid)
-    # card = cards.query.all()
-    # output = []
-    # for c in cards:
-    #     card_data = {'cardname': card.cardname, 'question': card.question, 'answer': card.answer}
-    #     output.append(card_data)
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor()
+    
+    cursor.execute("SELECT cardid, question, answer, topic FROM cards WHERE deckid=%s", (deckid, ))
 
-    cards1 = cards.query.all()
-    output = []
-    for card in cards1:
-        if int(card.deckid) == int(deckid):
-            deck_data = {'cardname': card.cardname, 'deckid': card.deckid, 'question': card.question, 'answer': card.answer}
-            output.append(deck_data)
-    #return {"cards": output}
-    return {"deckname": deck.deckname, "userid": deck.userid, "cards": output}
+    output = [{'cardid': x[0], 'question': x[1], 'answer': x[2], 'topic': x[3]} for x in cursor]
+
+    cnxn.close()
+
+    return jsonify({"cards": output})
+
+    # # original
+    # deck = Decks.query.get_or_404(deckid)
+    # # card = cards.query.all()
+    # # output = []
+    # # for c in cards:
+    # #     card_data = {'cardname': card.cardname, 'question': card.question, 'answer': card.answer}
+    # #     output.append(card_data)
+
+    # cards1 = cards.query.all()
+    # output = []
+    # for card in cards1:
+    #     if int(card.deckid) == int(deckid):
+    #         deck_data = {'cardname': card.cardname, 'deckid': card.deckid, 'question': card.question, 'answer': card.answer}
+    #         output.append(deck_data)
+    # #return {"cards": output}
+    # return {"deckname": deck.deckname, "userid": deck.userid, "cards": output}
 
     # return {"deckname": deck.deckname, "userid": deck.userid}
 #create a deck POST
@@ -207,6 +218,7 @@ def login():
     cnxn.close()
     
     return jsonify({'status': 'OK', 'userid': userid}) if userid != INVALID_USER_ID else jsonify({'status': 'invalid'})
+
 @app.route('/register', methods=['POST'])
 def register():
     username_from_user = request.json['username']
