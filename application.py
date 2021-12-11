@@ -186,16 +186,6 @@ def create_deck():
     
     cnxn.commit()
     cnxn.close()
-    # deck = Decks(deckname=request.json['deckname'],userid=request.json['userid'])
-    # db.session.add(deck)
-    # db.session.commit()
-    # d = Decks.query.all()
-    # deckid = d[len(d)-1].deckid
-    # for cd in request.json['cards']:
-    #     card = cards(cardname = cd['cardname'], deckid = deckid, question = cd['question'], answer = cd['answer'])
-    #     db.session.add(card)
-    #     db.session.commit()
-    #db.session.commit()
 
     return jsonify({"name": "success"})
 
