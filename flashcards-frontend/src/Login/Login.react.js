@@ -4,6 +4,7 @@ import './Login.css'
 import {PageNumberAtom, UserIDAtom} from '../atoms'
 import PageNumbers from '../PageNumbers';
 import { useSetRecoilState } from "recoil";
+import axios from "axios";
 
 export default function Login() {
     const [username, setUsername] = useState('')
@@ -19,12 +20,27 @@ export default function Login() {
                 <br />
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder='Enter password'/>
             </div>
-            <button onClick={() => {
+            <button onClick={async () => {
                 const userid = 20; // fill in API function here to get user ID
 
-                // replace this with "if credentials are valid below else clear password"
-                setUserID(userid);
-                setPageNumber(PageNumbers.DECK_LIST);
+                const data = {
+                    username,
+                    password
+                };
+        
+                console.log(data);
+                const response = await axios.post('http://127.0.0.1:5000/login', data);
+                console.log(response);
+
+                const status = response.data.status;
+
+                if (status === "OK") {
+                    const userid = response.data.userid;
+                    setUserID(userid);
+                    setPageNumber(PageNumbers.DECK_LIST);
+                } else {
+                    setPassword("");
+                }
             }}>Login</button>
         </div>
     )

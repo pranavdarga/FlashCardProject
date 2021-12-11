@@ -21,3 +21,7 @@ mysql -uroot -p -h 34.70.158.171 --ssl-ca=ssl/server-ca.pem --ssl-cert=ssl/clien
 ```
 
 Password is `cs348`.
+
+Then, type `use flashcards`.
+
+https://console.cloud.google.com/sql/instances/cs-348-flashcards/databases?project=shatayu-348

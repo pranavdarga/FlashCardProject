@@ -39,7 +39,7 @@ export default function DeckList() {
                 {deckList.map(deck => <div key={uuidv4()} className='deckEntry' onClick={async () => {
                     const cards = await axios.get('http://127.0.0.1:5000/decks/' + deck.deckid);
                     setCurrentDeckCards(cards);
-                    setPageNumber(PageNumbers.REVIEW_DECK)
+                    setPageNumber(PageNumbers.REVIEW_DECK);
                 }}>{deck.deckname}</div>)}
             </div>
             <button onClick={() => {

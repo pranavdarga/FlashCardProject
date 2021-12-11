@@ -3,10 +3,13 @@ from flask import Flask,jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
+import mysql.connector
+from mysql.connector.constants import ClientFlag
+
 app = Flask(__name__)
 CORS(app)
 
-
+INVALID_USER_ID = -1
 
 #set FLASK_APP=application.py
 #set FLASK_ENV=development
@@ -77,8 +80,21 @@ def index():
 #
 # #find a deck GET
 # #response: deck and all the associated cards or NoSuchDeck
+
+config = {
+    'user': 'root',
+    'password': 'cs348',
+    'host': '34.70.158.171',
+    'client_flags': [ClientFlag.SSL],
+    'ssl_ca': 'ssl/server-ca.pem',
+    'ssl_cert': 'ssl/client-cert.pem',
+    'ssl_key': 'ssl/client-key.pem'
+}
+config['database'] = 'flashcards'  # add new database to config dict
+
 @app.route('/decks')
 def get_decks():
+    # original
     decks = Decks.query.all()
     output = []
     for deck in decks:
@@ -138,14 +154,21 @@ def create_deck():
 
     return jsonify({"name": "success"})
 
-# #remove a deck only author can delete DELETE
-# #response: success,
-# @app.route('/deletedeck/<deckname>/<deckid>')
-# def auth(deckname, deckid):
-#     return {"drink_wanted": id}
-#
-# #extra feautures
-# #1. modifying only one card
-# #2. running user stats
-# #3. user's favourite decks
-#
+@app.route('/login', methods=['POST'])
+def login():
+    # mysql
+    username_from_user = request.json['username']
+    password_from_user = request.json['password']
+
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor()
+
+    cursor.execute("SELECT * FROM accounts WHERE username=%s AND password=%s", (username_from_user, password_from_user))
+
+    print("OUTPUT FROM GOOGLE CLOUD QUERY")
+
+    userid = INVALID_USER_ID
+    for t in cursor:
+        userid, _, _ = t
+    
+    return jsonify({'status': 'OK', 'userid': userid}) if userid != INVALID_USER_ID else jsonify({'status': 'invalid'})
