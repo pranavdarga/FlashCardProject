@@ -6,10 +6,13 @@ from flask_sqlalchemy import SQLAlchemy
 import mysql.connector
 from mysql.connector.constants import ClientFlag
 
+import random
+
 app = Flask(__name__)
 CORS(app)
 
 INVALID_USER_ID = -1
+INT_MAXSQL = 2147483647
 
 #set FLASK_APP=application.py
 #set FLASK_ENV=development
@@ -148,17 +151,50 @@ def get_deck(deckid):
 #db.session.commit()
 @app.route('/createdeck', methods=['POST'])
 def create_deck():
+    userid = request.json['userid']
+    deckname = request.json['deckname']
+    cards = request.json['cards']
+
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor(buffered=True)
+
+    # generate deckid
+    deckid = random.randint(0, INT_MAXSQL)
+    cursor.execute("SELECT * FROM decks WHERE deckid = %s", (userid, ))
+
+    while cursor.rowcount > 0:
+        deckid = random.randint(0, INT_MAXSQL)
+        cursor.execute("SELECT * FROM decks WHERE deckid = %s", (deckid, ))
+
     # get deckname and insert into deck
+    cursor.execute("INSERT INTO decks VALUES (%s, %s, %s, %s)", (deckid, userid, deckname, userid))
+    cnxn.commit()
+
+    # insert cards
+    for card in cards:
+        # generate new card id
+        cardid = random.randint(0, INT_MAXSQL)
+        cursor.execute("SELECT * FROM cards WHERE cardid = %s", (cardid, ))
+
+        while cursor.rowcount > 0:
+            cardid = random.randint(0, INT_MAXSQL)
+            cursor.execute("SELECT * FROM cards WHERE cardid = %s", (cardid, ))
+
+        # insert card into deck
+        data = (cardid, deckid, userid, card['question'], card['answer'], card['topic'])
+        cursor.execute("INSERT INTO cards VALUES (%s, %s, %s, %s, %s, %s)", data)
     
-    deck = Decks(deckname=request.json['deckname'],userid=request.json['userid'])
-    db.session.add(deck)
-    db.session.commit()
-    d = Decks.query.all()
-    deckid = d[len(d)-1].deckid
-    for cd in request.json['cards']:
-        card = cards(cardname = cd['cardname'], deckid = deckid, question = cd['question'], answer = cd['answer'])
-        db.session.add(card)
-        db.session.commit()
+    cnxn.commit()
+    cnxn.close()
+    # deck = Decks(deckname=request.json['deckname'],userid=request.json['userid'])
+    # db.session.add(deck)
+    # db.session.commit()
+    # d = Decks.query.all()
+    # deckid = d[len(d)-1].deckid
+    # for cd in request.json['cards']:
+    #     card = cards(cardname = cd['cardname'], deckid = deckid, question = cd['question'], answer = cd['answer'])
+    #     db.session.add(card)
+    #     db.session.commit()
     #db.session.commit()
 
     return jsonify({"name": "success"})
