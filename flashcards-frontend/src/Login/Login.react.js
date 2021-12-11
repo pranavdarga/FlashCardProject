@@ -20,8 +20,9 @@ export default function Login() {
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder='Enter password'/>
             </div>
             <button onClick={() => {
-                console.log('beans');
-                const userid = 'test'; // fill in API function here
+                const userid = 20; // fill in API function here to get user ID
+
+                // replace this with "if credentials are valid below else clear password"
                 setUserID(userid);
                 setPageNumber(PageNumbers.DECK_LIST);
             }}>Login</button>

@@ -13,7 +13,6 @@ export default function DeckList() {
     const resetuserID = useResetRecoilState(UserIDAtom);
 
     const [deckList, setDeckList] = useState([]);
-    const [currentDeckName, setCurrentDeckName] = useState([]);
 
 
     useEffect(() => {
@@ -32,18 +31,15 @@ export default function DeckList() {
         }
 
         updateDeckList();
-    }, []);
+    }, [userID]);
 
     return (
         <div className='container'>
             <div>
                 {deckList.map(deck => <div key={uuidv4()} className='deckEntry' onClick={async () => {
-                    console.log(deck.deckid)
                     const cards = await axios.get('http://127.0.0.1:5000/decks/' + deck.deckid);
-                    console.log(cards);
                     setCurrentDeckCards(cards);
-                    setCurrentDeckName(deck.deckname);
-                    // setPageNumber(PageNumbers.REVIEW_DECK)
+                    setPageNumber(PageNumbers.REVIEW_DECK)
                 }}>{deck.deckname}</div>)}
             </div>
             <button onClick={() => {
@@ -51,7 +47,6 @@ export default function DeckList() {
                 resetuserID()
             }}>Log out</button>
             <button onClick={() => setPageNumber(PageNumbers.NEW_DECK)}>Add new deck</button>
-        <button onClick={() => setPageNumber(PageNumbers.REVIEW_DECK)}>Review {currentDeckName}</button>
         </div>
     )
 }

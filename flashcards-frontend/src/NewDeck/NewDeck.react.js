@@ -10,6 +10,7 @@ import PageNumbers from "../PageNumbers";
 
 export default function NewDeck() {
     const userID = useRecoilValue(UserIDAtom);
+    console.log(userID)
 
     const [deckName, setDeckName] = useState('');
     const [cards, setCards] = useState([]);
@@ -66,6 +67,7 @@ export default function NewDeck() {
                 ))}
             </div>
             <button onClick={saveDeck}>Save deck</button>
+            <button onClick={() => setPageNumber(PageNumbers.DECK_LIST)}>Go back</button>
         </div>
     )
 }
