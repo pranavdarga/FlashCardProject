@@ -95,7 +95,7 @@ config = {
 }
 config['database'] = 'flashcards'  # add new database to config dict
 
-@app.route('/decks/<userid>')
+@app.route('/user_decks/<userid>')
 def get_decks(userid):
     # mysql
     cnxn = mysql.connector.connect(**config)

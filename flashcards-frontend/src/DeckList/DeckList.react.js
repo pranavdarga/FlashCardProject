@@ -51,6 +51,6 @@ export default function DeckList() {
 }
 
 async function getDeckList(userID) {
-    const deckList = await axios.get(`http://127.0.0.1:5000/decks/${userID}`);
+    const deckList = await axios.get(`http://127.0.0.1:5000/user_decks/${userID}`);
     return deckList.data.decks;
 }
