@@ -174,3 +174,15 @@ def cardHistory():
     cnxn.commit()
     cnxn.close()
     return jsonify({'status': 'OK'})
+
+@app.route('/analytics')
+def analytics():
+    userid = request.json['userid']
+
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor(buffered=True)
+
+    
+
+    cnxn.close()
+    return jsonify({'status': 'OK'})
