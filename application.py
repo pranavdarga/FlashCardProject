@@ -1,3 +1,4 @@
+from os import times
 import re
 from flask import Flask,jsonify, request
 from flask_cors import CORS
@@ -7,6 +8,8 @@ import mysql.connector
 from mysql.connector.constants import ClientFlag
 
 import random
+
+
 
 app = Flask(__name__)
 CORS(app)
@@ -75,31 +78,31 @@ def get_hist(userid):
 
     return jsonify({"cards": output})
 
-@app.route('/bestcard/<userid>')
-def get_best(userid):
-    cnxn = mysql.connector.connect(**config)
-    cursor = cnxn.cursor()
+# @app.route('/bestcard/<userid>')
+# def get_best(userid):
+#     cnxn = mysql.connector.connect(**config)
+#     cursor = cnxn.cursor()
 
-    cursor.execute("SELECT cardid, count(time) as a FROM cardHistory WHERE userid=%s group by cardid order by a desc limit 1", (userid,))
+#     cursor.execute("SELECT cardid, count(time) as a FROM cardHistory WHERE userid=%s group by cardid order by a desc limit 1", (userid,))
 
-    output = [{'card_id': x[0], 'userid': userid, 'accesses': x[1]} for x in cursor]
+#     output = [{'card_id': x[0], 'userid': userid, 'accesses': x[1]} for x in cursor]
 
-    cnxn.close()
+#     cnxn.close()
 
-    return jsonify({"cards": output})
+#     return jsonify({"cards": output})
 
-@app.route('/worstcard/<userid>')
-def get_best(userid):
-    cnxn = mysql.connector.connect(**config)
-    cursor = cnxn.cursor()
+# @app.route('/worstcard/<userid>')
+# def get_worst(userid):
+#     cnxn = mysql.connector.connect(**config)
+#     cursor = cnxn.cursor()
 
-    cursor.execute("SELECT cardid, count(time) as a FROM cardHistory WHERE userid=%s group by cardid order by a limit 1", (userid,))
+#     cursor.execute("SELECT cardid, count(time) as a FROM cardHistory WHERE userid=%s group by cardid order by a limit 1", (userid,))
 
-    output = [{'card_id': x[0], 'userid': userid, 'accesses': x[1]} for x in cursor]
+#     output = [{'card_id': x[0], 'userid': userid, 'accesses': x[1]} for x in cursor]
 
-    cnxn.close()
+#     cnxn.close()
 
-    return jsonify({"cards": output})
+#     return jsonify({"cards": output})
 
 
 @app.route('/deck_cards/<deckid>')
@@ -227,10 +230,27 @@ def cardHistory():
 def analytics():
     userid = request.json['userid']
 
+
     cnxn = mysql.connector.connect(**config)
     cursor = cnxn.cursor(buffered=True)
 
+    # cursor.execute("select deckid from decks where userid = %s", (userid, ))
+    # decks = []
+    # for line in cursor:
+    #     decks.append(line[0])
+    # for d in decks:
+    #     # least used card in deck
+    #     cursor.execute("select cardid from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where d.deckid = %s order by count limit 1;", (n, ))
+    #     # most used card in deck
+    #     cursor.execute("select cardid from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where d.deckid = %s order by count desc limit 1;", (n, ))
+   
+    #least viewed deck
+    cursor.execute("select d.deckid from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count limit 1", (userid, ))
+    least = [{'deckid' : x[0]} for x in cursor]
     
+    # most viewed deck
+    cursor.execute("select d.deckid from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count DESC limit 1", (userid, ))
+    most = [{'deckid' : x[0]} for x in cursor]
 
     cnxn.close()
-    return jsonify({'status': 'OK'})
+    return jsonify({'status': OK, 'least-deck': least, 'most-deck': most})
