@@ -36,23 +36,71 @@ def get_decks(userid):
     # mysql
     cnxn = mysql.connector.connect(**config)
     cursor = cnxn.cursor()
-    
-    cursor.execute("SELECT deckid, deckname FROM decks WHERE userid=%s", (userid, ))
 
+    cursor.execute("SELECT deckid, deckname FROM decks WHERE userid=%s", (userid,))
+    deck_value_arr = []
+    for line in cursor:
+        deck_value_arr.append(line)
     output = []
-    for deck_values in cursor:
+    for deck_values in deck_value_arr:
         deckid, deckname = deck_values
 
         # TODO: add in last_reviewed_string - how long ago this deck was last reviewed by this user as a pretty string
+
         # e.g. 'two days ago', 'a month ago', etc. - NOT a timestamp
         # TODO: add in num_cards
-
-        deck_data = {'deckid': deckid, 'deckname': deckname, 'num_cards': 10, 'last_reviewed_string': 'about a week ago'}
+        # select count(*) from cards where deckid = %s
+        cursor.execute("SELECT count(*) from cards where deckid=%s", (deckid,))
+        num_cards = 0
+        for line in cursor:
+            num_cards = line
+        deck_data = {'deckid': deckid, 'deckname': deckname, 'num_cards': num_cards[0],
+                     'last_reviewed_string': 'about a week ago'}
         output.append(deck_data)
 
     cnxn.close()
-    
+
     return jsonify({"decks": output})
+
+@app.route('/cardhistory/<userid>')
+def get_hist(userid):
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor()
+
+    cursor.execute("SELECT cardid, time FROM cardHistory WHERE userid=%s", (userid,))
+
+    output = [{'cardid': x[0], 'userid': userid, 'time': x[1]} for x in cursor]
+
+    cnxn.close()
+
+    return jsonify({"cards": output})
+
+@app.route('/bestcard/<userid>')
+def get_best(userid):
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor()
+
+    cursor.execute("SELECT cardid, count(time) as a FROM cardHistory WHERE userid=%s group by cardid order by a desc limit 1", (userid,))
+
+    output = [{'card_id': x[0], 'userid': userid, 'accesses': x[1]} for x in cursor]
+
+    cnxn.close()
+
+    return jsonify({"cards": output})
+
+@app.route('/worstcard/<userid>')
+def get_best(userid):
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor()
+
+    cursor.execute("SELECT cardid, count(time) as a FROM cardHistory WHERE userid=%s group by cardid order by a limit 1", (userid,))
+
+    output = [{'card_id': x[0], 'userid': userid, 'accesses': x[1]} for x in cursor]
+
+    cnxn.close()
+
+    return jsonify({"cards": output})
+
 
 @app.route('/deck_cards/<deckid>')
 def get_deck(deckid):
