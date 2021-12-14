@@ -55,7 +55,7 @@ export default function NewDeck() {
             cards
         };
 
-        axios.post('http://127.0.0.1:5000/createdeck', data);
+        axios.post('https://flashcard-project-335103.uc.r.appspot.com/createdeck', data);
         setPageNumber(PageNumbers.DECK_LIST);
     }, [cards, deckName, setPageNumber, userID]);
 
