@@ -13,7 +13,10 @@ export default function DeckList() {
     const resetUserID = useResetRecoilState(UserIDAtom);
 
     const [deckList, setDeckList] = useState([]);
-    const [currentDeckName, setCurrentDeckName] = useState('');
+    const [currentDeck, setCurrentDeck] = useState({
+        deckname: '',
+        deckid: 0
+    });
 
     useEffect(() => {
         async function updateDeckList() {
@@ -33,7 +36,7 @@ export default function DeckList() {
         updateDeckList();
     }, [userID]);
 
-    const isDeckSelected = currentDeckCards.length > 0 && currentDeckName.length > 0;
+    const isDeckSelected = currentDeckCards.length > 0 && currentDeck.deckname.length > 0;
 
     return (
         <div className='container'>
@@ -42,7 +45,7 @@ export default function DeckList() {
                     const response = await axios.get(`http://127.0.0.1:5000/deck_cards/${deck.deckid}`);
                     const cards = response.data.cards;
                     setCurrentDeckCards(cards);
-                    setCurrentDeckName(deck.deckname);
+                    setCurrentDeck(deck);
                 }}>{deck.deckname} ({deck.num_cards} cards, last reviewed {deck.last_reviewed_string})</div>)}
             </div>
             <button onClick={() => {
@@ -51,9 +54,10 @@ export default function DeckList() {
             }}>Log out</button>
             <button onClick={() => setPageNumber(PageNumbers.NEW_DECK)}>Add new deck</button>
             <button onClick={() => setPageNumber(PageNumbers.REVIEW_DECK)} disabled={!isDeckSelected}>
-                {isDeckSelected ? `Review ${currentDeckName}` : 'Select a deck to review'}
+                {isDeckSelected ? `Review ${currentDeck.deckname}` : 'Select a deck to review'}
             </button>
             <button onClick={() => setPageNumber(PageNumbers.ANALYTICS)}>Explore your analytics</button>
+        {currentDeck.deckid > 0 && <div>Current deck ID: {currentDeck.deckid}</div>}
         </div>
     )
 }
