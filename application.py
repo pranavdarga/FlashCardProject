@@ -256,16 +256,26 @@ def analytics(userid):
     cnxn = mysql.connector.connect(**config)
     cursor = cnxn.cursor(buffered=True)
 
-    # cursor.execute("select deckid from decks where userid = %s", (userid, ))
-    # decks = []
-    # for line in cursor:
-    #     decks.append(line[0])
-    # for d in decks:
-    #     # least used card in deck
-    #     cursor.execute("select cardid from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where d.deckid = %s order by count limit 1;", (n, ))
-    #     # most used card in deck
-    #     cursor.execute("select cardid from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where d.deckid = %s order by count desc limit 1;", (n, ))
-   
+    cursor.execute("select deckid, deckname from decks where userid = %s", (userid, ))
+    decks = []
+    for line in cursor:
+        decks.append(line)
+
+    card_table = []
+    for d, deckname in decks:
+        # least used card in deck
+        cursor.execute("select question, answer, topic from (select c.cardid, c.deckid, c.question, c.answer, c.topic, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where d.deckid = %s order by count limit 1;", (d, ))
+        least_used_card = [t for t in cursor]
+        
+        # most used card in deck
+        cursor.execute("select question, answer, topic from (select c.cardid, c.deckid, c.question, c.answer, c.topic, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where d.deckid = %s order by count desc limit 1;", (d, ))
+        most_used_card = [t for t in cursor]
+
+        card_table.append([deckname, least_used_card, most_used_card])
+
+    print("STUFF")
+    print(card_table)
+
     #least viewed deck
     cursor.execute("select d.deckname from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count limit 1", (userid, ))
     least = [{'deckname' : x[0]} for x in cursor][0]
@@ -275,7 +285,7 @@ def analytics(userid):
     most = [{'deckname' : x[0]} for x in cursor][0]
 
     cnxn.close()
-    return jsonify({'status': 'OK', 'least_deck': least, 'most_deck': most})
+    return jsonify({'status': 'OK', 'least_deck': least, 'most_deck': most, 'card_table': card_table})
 
 @app.route('/importdeck', methods=['POST'])
 def importdeck():
