@@ -232,10 +232,9 @@ def cardHistory():
     cnxn.close()
     return jsonify({'status': 'OK'})
 
-@app.route('/analytics')
-def analytics():
-    userid = request.json['userid']
-
+@app.route('/analytics/<userid>')
+def analytics(userid):
+    print(f"ANALYTICS USERID = {userid}")
 
     cnxn = mysql.connector.connect(**config)
     cursor = cnxn.cursor(buffered=True)
@@ -251,15 +250,15 @@ def analytics():
     #     cursor.execute("select cardid from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where d.deckid = %s order by count desc limit 1;", (n, ))
    
     #least viewed deck
-    cursor.execute("select d.deckid from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count limit 1", (userid, ))
-    least = [{'deckid' : x[0]} for x in cursor]
+    cursor.execute("select d.deckname from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count limit 1", (userid, ))
+    least = [{'deckname' : x[0]} for x in cursor][0]
     
     # most viewed deck
-    cursor.execute("select d.deckid from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count DESC limit 1", (userid, ))
-    most = [{'deckid' : x[0]} for x in cursor]
+    cursor.execute("select d.deckname from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count DESC limit 1", (userid, ))
+    most = [{'deckname' : x[0]} for x in cursor][0]
 
     cnxn.close()
-    return jsonify({'status': 'OK', 'least-deck': least, 'most-deck': most})
+    return jsonify({'status': 'OK', 'least_deck': least, 'most_deck': most})
 
 @app.route('/importdeck', methods=['POST'])
 def importdeck():
