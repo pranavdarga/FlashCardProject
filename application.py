@@ -9,7 +9,8 @@ from mysql.connector.constants import ClientFlag
 
 import random
 
-
+import datetime
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -57,8 +58,24 @@ def get_decks(userid):
         num_cards = 0
         for line in cursor:
             num_cards = line
+
+        # get last accessed card
+        cursor.execute("select time from (cards c left join cardHistory ch on ch.cardid = c.cardid) where c.deckid = %s order by time desc limit 1", (deckid,))
+        date = None
+        for l in cursor:
+            for n in l:
+                date = n
+        if date is None:
+            #deck has never been used before
+            last_used = "never"
+        else:
+            date_now = date.today()
+            delta = date_now - date
+            days_ago = delta.days
+            last_used = " about " + str(days_ago) + " days ago"
+
         deck_data = {'deckid': deckid, 'deckname': deckname, 'num_cards': num_cards[0],
-                     'last_reviewed_string': 'about a week ago'}
+                     'last_reviewed_string': last_used}
         output.append(deck_data)
 
     cnxn.close()
