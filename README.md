@@ -8,7 +8,7 @@ This installs dependancies
 
 2. 
 ```
-export FLASK_APP=application.py
+export FLASK_APP=main.py
 export FLASK_ENV=development
 flask run
 ```
