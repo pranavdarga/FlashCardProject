@@ -138,7 +138,11 @@ def create_deck():
         cursor.execute("SELECT * FROM decks WHERE deckid = %s", (deckid, ))
 
     # get deckname and insert into deck
-    cursor.execute("INSERT INTO decks VALUES (%s, %s, %s, %s)", (deckid, userid, deckname, userid))
+    cursor.execute("INSERT INTO decks VALUES (%s, %s, %s)", (deckid, deckname, userid))
+    cnxn.commit()
+
+    # make creator user of deck
+    cursor.execute("INSERT INTO DeckUsers VALUES (%s, %s)", (userid, deckid))
     cnxn.commit()
 
     # insert cards
