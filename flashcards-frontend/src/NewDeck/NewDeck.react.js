@@ -17,12 +17,23 @@ export default function NewDeck() {
     const [currentCardBack, setCurrentCardBack] = useState('');
     const [currentCardTopic, setCurrentCardTopic] = useState('');
 
+    const [newDeckIDToImport, setNewDeckIDToImport] = useState('');
+
     const setPageNumber = useSetRecoilState(PageNumberAtom);
+
+    const importDeckID = () => {
+        // make API call with ID
+        // console.log(newDeckIDToImport);
+        const data = {
+            deckid: newDeckIDToImport,
+            userid: userID, // replace with actual user ID
+        };
+
+        axios.post('http://127.0.0.1:5000/importdeck', data);
+    }
 
     const updateTitle = useCallback((newValue) => {
         setDeckName(newValue);
-
-        // API call to change deck here
     }, [setDeckName])
 
     const addNewCard = useCallback(() => {
@@ -51,6 +62,10 @@ export default function NewDeck() {
     return (
         <div className='container'>
             <div className='inputContainer'>
+                <input type='text' className='deckid_entry' placeholder='Enter existing deck ID here' onChange={e => setNewDeckIDToImport(e.target.value)} value={newDeckIDToImport} />
+                <button onClick={importDeckID}>Import this deck ID</button>
+                <br />
+                <br />
                 <input type='text' className='titleEntryBox' placeholder='Enter title of deck here' onChange={e => updateTitle(e.target.value)} value={deckName} />
                 <input type='text' className='newCardFront' placeholder='Enter question here' onChange={e => setCurrentCardFront(e.target.value)} value={currentCardFront} />
                 <input type='text' className='newCardBack' placeholder='Enter answer here' onChange={e => setCurrentCardBack(e.target.value)} value={currentCardBack} />
@@ -64,7 +79,6 @@ export default function NewDeck() {
                         <div className='cardFront'><strong>Front: </strong>{card.question}</div>
                         <div className='cardBack'><strong>Back: </strong>{card.answer}</div>
                         <div className='cardTopic'><i>Topic: {card.topic}</i></div>
-
                     </div>
                 ))}
             </div>

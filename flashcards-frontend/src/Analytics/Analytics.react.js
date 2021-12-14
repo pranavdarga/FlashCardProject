@@ -4,22 +4,35 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import PageNumbers from "../PageNumbers";
 import { PageNumberAtom, UserIDAtom } from '../atoms';
 import axios from "axios";
+import { useEffect, useState } from 'react';
 
 export default function Analytics() {
     const setPageNumber = useSetRecoilState(PageNumberAtom);
     const userid = useRecoilValue(UserIDAtom);
-    
-    var results = getNumbers(userid);
+
+    const [results, setResults] = useState({
+        most_deck: {deckname: ''},
+        least_deck: {deckname: ''}
+    });
+
+    useEffect(() => {
+        async function getNumbers(userid) {
+            const data = {userid: userid};
+            console.log(data);
+            const response = await axios.get(`http://127.0.0.1:5000/analytics/${userid}`);
+            console.log(response);
+            setResults(response.data);
+        }
+
+        getNumbers(userid);
+    }, [userid]);
 
     return (
         <div className='container'>
-            <div>{}'s top card is: {}</div>
+            <div>Your most used deck is: {results.most_deck.deckname}</div>
+            <div>Your least used deck is: {results.least_deck.deckname}</div>
+
             <button onClick={() => setPageNumber(PageNumbers.DECK_LIST)}>Return to home</button>
         </div>
     );
-}
-async function getNumbers(userid) {
-    const data = {userid: userid};
-    const response = await axios.get('https://flashcard-project-335103.uc.r.appspot.com/analytics', data);
-    return 0;
 }
