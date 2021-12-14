@@ -253,4 +253,42 @@ def analytics():
     most = [{'deckid' : x[0]} for x in cursor]
 
     cnxn.close()
-    return jsonify({'status': OK, 'least-deck': least, 'most-deck': most})
+    return jsonify({'status': 'OK', 'least-deck': least, 'most-deck': most})
+
+@app.route('/importdeck', methods=['POST'])
+def importdeck():
+    userid = request.json['userid']
+    deckid = request.json['deckid']
+
+    print(f'USERID = {userid} and DECKID = {deckid}')
+
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor(buffered=True)
+    
+    # validate that the deckID in question exists
+    cursor.execute('SELECT COUNT(*) FROM decks WHERE deckid = %s', (deckid, ))
+    count = -1
+    for t in cursor:
+        count = t[0]
+
+    if count < 1:
+        return jsonify({'status': 'Invalid ID'})
+
+    print(f'COUNT = {count}')
+
+    # validate that the pairing is new
+    cursor.execute('SELECT COUNT(*) FROM Deckusers WHERE deckid = %s AND userid = %s', (deckid, userid))
+    count = 0
+    for t in cursor:
+        count = t[0]
+
+    if count != 0:
+        return jsonify({'status': 'Entry already exists'})
+
+    # now that those two have been established insert into table
+    cursor.execute('INSERT INTO DeckUsers VALUES (%s, %s)', (userid, deckid))
+
+    cnxn.commit()
+    cnxn.close()
+
+    return jsonify({'status': 'OK'})
