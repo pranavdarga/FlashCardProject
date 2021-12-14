@@ -42,7 +42,7 @@ def get_decks(userid):
 
     print(f'USERID = {userid}')
 
-    cursor.execute("SELECT deckid, deckname FROM decks x NATURAL JOIN DeckUsers y WHERE y.userid=%s", (userid,))
+    cursor.execute("SELECT d1.deckid, d1.deckname FROM decks d1 JOIN DeckUsers d2 ON d1.deckid=d2.deckid WHERE d2.userid=%s;", (userid,))
     deck_value_arr = []
     for line in cursor:
         deck_value_arr.append(line)
@@ -279,7 +279,7 @@ def importdeck():
     print(f'COUNT = {count}')
 
     # validate that the pairing is new
-    cursor.execute('SELECT COUNT(*) FROM Deckusers WHERE deckid = %s AND userid = %s', (deckid, userid))
+    cursor.execute('SELECT COUNT(*) FROM DeckUsers WHERE deckid = %s AND userid = %s', (deckid, userid))
     count = 0
     for t in cursor:
         count = t[0]
