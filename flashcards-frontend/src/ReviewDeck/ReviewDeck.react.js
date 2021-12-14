@@ -26,7 +26,7 @@ export default function ReviewDeck() {
                         userid: userid
                     };
                     
-                    const response = await axios.post('http://127.0.0.1:5000/cardhistory', data);
+                    const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com/cardhistory', data);
                     const status = response.data.status;
 
                     setCurrentCardIndex(currentCardIndex + 1)

@@ -20,6 +20,6 @@ export default function Analytics() {
 }
 async function getNumbers(userid) {
     const data = {userid: userid};
-    const response = await axios.get('http://127.0.0.1:5000/analytics', data);
+    const response = await axios.get('https://flashcard-project-335103.uc.r.appspot.com/analytics', data);
     return 0;
 }
