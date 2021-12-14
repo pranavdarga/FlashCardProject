@@ -12,14 +12,15 @@ export default function Analytics() {
 
     const [results, setResults] = useState({
         most_deck: {deckname: ''},
-        least_deck: {deckname: ''}
+        least_deck: {deckname: ''},
+        card_table: []
     });
 
     useEffect(() => {
         async function getNumbers(userid) {
             const data = {userid: userid};
             console.log(data);
-            const response = await axios.get(`http://127.0.0.1:5000/analytics/${userid}`);
+            const response = await axios.get(`https://flashcard-project-335103.uc.r.appspot.com/analytics/${userid}`);
             console.log(response);
             setResults(response.data);
         }
@@ -29,8 +30,35 @@ export default function Analytics() {
 
     return (
         <div className='container'>
-            <div>Your most used deck is: {results.most_deck.deckname}</div>
-            <div>Your least used deck is: {results.least_deck.deckname}</div>
+            <div>Your most reviewed deck is: {results.most_deck.deckname}</div>
+            <div>Your least reviewed deck is: {results.least_deck.deckname}</div>
+
+            <br />
+
+            {results.card_table.map((entry, index) => {
+                console.log(entry);
+
+                // query returned nothing
+                if (entry[1].length === 0) {
+                    return null;
+                }
+
+                return (
+                    <div key={index}>
+                        <div>The least reviewed card for {entry[0]} was: </div>
+                        <div><strong>Question: </strong> {entry[1][0][0]}</div>
+                        <div><strong>Answer: </strong> {entry[1][0][1]}</div>
+                        <div><i>Topic: {entry[1][0][2]}</i></div>
+                        <br />
+                        <div>The most reviewed card for {entry[0]} was: </div>
+                        <div><strong>Question: </strong> {entry[2][0][0]}</div>
+                        <div><strong>Answer: </strong> {entry[2][0][1]}</div>
+                        <div><i>Topic: {entry[2][0][2]}</i></div>
+                        <br />
+                        <br />
+                    </div>
+                );
+            })}
 
             <button onClick={() => setPageNumber(PageNumbers.DECK_LIST)}>Return to home</button>
         </div>
