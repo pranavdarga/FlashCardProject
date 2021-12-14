@@ -40,7 +40,9 @@ def get_decks(userid):
     cnxn = mysql.connector.connect(**config)
     cursor = cnxn.cursor()
 
-    cursor.execute("SELECT deckid, deckname FROM decks WHERE userid=%s", (userid,))
+    print(f'USERID = {userid}')
+
+    cursor.execute("SELECT deckid, deckname FROM decks x NATURAL JOIN DeckUsers y WHERE y.userid=%s", (userid,))
     deck_value_arr = []
     for line in cursor:
         deck_value_arr.append(line)
