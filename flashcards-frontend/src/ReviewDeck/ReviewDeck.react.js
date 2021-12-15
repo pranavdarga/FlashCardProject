@@ -44,7 +44,7 @@ function Card({card, userid}) {
             };
             
             console.log('sending cardhistory')
-            const response = await axios.post('http://127.0.0.1:5000/cardhistory', data);
+            const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com/cardhistory', data);
             console.log(response);
             setRevealed(!revealed)
         }}>
