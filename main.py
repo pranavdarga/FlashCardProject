@@ -84,18 +84,18 @@ def get_decks(userid):
 
     return jsonify({"decks": output})
 
-# @app.route('/cardhistory/<userid>')
-# def get_hist(userid):
-#     cnxn = mysql.connector.connect(**config)
-#     cursor = cnxn.cursor()
+@app.route('/cardhistory/<userid>')
+def get_hist(userid):
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor()
 
-#     cursor.execute("SELECT cardid, time FROM cardHistory WHERE userid=%s", (userid,))
+    cursor.execute("SELECT cardid, time FROM cardHistory WHERE userid=%s", (userid,))
 
-#     output = [{'cardid': x[0], 'userid': userid, 'time': x[1]} for x in cursor]
+    output = [{'cardid': x[0], 'userid': userid, 'time': x[1]} for x in cursor]
 
-#     cnxn.close()
+    cnxn.close()
 
-#     return jsonify({"cards": output})
+    return jsonify({"cards": output})
 
 # @app.route('/bestcard/<userid>')
 # def get_best(userid):
@@ -249,8 +249,8 @@ def cardHistory():
     cnxn.close()
     return jsonify({'status': 'OK'})
 
-@app.route('/user_stats/<userid>')
-def user_stats(userid):
+@app.route('/analytics/<userid>')
+def analytics(userid):
     print(f"ANALYTICS USERID = {userid}")
 
     cnxn = mysql.connector.connect(**config)
