@@ -16,19 +16,10 @@ export default function ReviewDeck() {
 
     return (
         <div className='container'>
-            {<Card card={cards[currentCardIndex]} />}
+            {<Card card={cards[currentCardIndex]} userid={userid} />}
             <button onClick={() => setCurrentCardIndex(currentCardIndex - 1)} disabled={currentCardIndex < 1}>Previous</button>
-            <button onClick={async () => 
+            <button onClick={() => 
                 {
-                    const data = {
-                        cardid: cards[currentCardIndex].cardid,
-                        time: new Date().toISOString().slice(0, 19).replace('T', ' '),
-                        userid: userid
-                    };
-                    
-                    const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com/cardhistory', data);
-                    const status = response.data.status;
-
                     setCurrentCardIndex(currentCardIndex + 1)
                 }} disabled={currentCardIndex + 1 >= cards.length}>Next</button>
             <button onClick={() => setPageNumber(PageNumbers.DECK_LIST)}>Return to home</button>
@@ -36,7 +27,7 @@ export default function ReviewDeck() {
     );
 }
 
-function Card({card}) {
+function Card({card, userid}) {
     const [revealed, setRevealed] = useState(false);
 
     // hide answer when we change cards
@@ -45,7 +36,18 @@ function Card({card}) {
     }, [card]);
 
     return (
-        <div className='card' onClick={() => setRevealed(!revealed)}>
+        <div className='card' onClick={async () => {
+            const data = {
+                cardid: card.cardid,
+                time: new Date().toISOString().slice(0, 19).replace('T', ' '),
+                userid: userid
+            };
+            
+            console.log('sending cardhistory')
+            const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com/cardhistory', data);
+            console.log(response);
+            setRevealed(!revealed)
+        }}>
             <div>{card.question}</div>
             {revealed && <div>{card.answer}</div>}
             {revealed && <div><i>{card.topic}</i></div>}

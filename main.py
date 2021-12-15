@@ -62,7 +62,7 @@ def get_decks(userid):
             num_cards = line
 
         # get last accessed card
-        cursor.execute("select time from (cards c left join cardHistory ch on ch.cardid = c.cardid) where c.deckid = %s order by time desc limit 1", (deckid,))
+        cursor.execute("select ch.time from (cards c left join cardHistory ch on ch.cardid = c.cardid) where c.deckid = %s order by time desc limit 1", (deckid,))
         date = None
         for l in cursor:
             for n in l:
@@ -84,18 +84,18 @@ def get_decks(userid):
 
     return jsonify({"decks": output})
 
-@app.route('/cardhistory/<userid>')
-def get_hist(userid):
-    cnxn = mysql.connector.connect(**config)
-    cursor = cnxn.cursor()
+# @app.route('/cardhistory/<userid>')
+# def get_hist(userid):
+#     cnxn = mysql.connector.connect(**config)
+#     cursor = cnxn.cursor()
 
-    cursor.execute("SELECT cardid, time FROM cardHistory WHERE userid=%s", (userid,))
+#     cursor.execute("SELECT cardid, time FROM cardHistory WHERE userid=%s", (userid,))
 
-    output = [{'cardid': x[0], 'userid': userid, 'time': x[1]} for x in cursor]
+#     output = [{'cardid': x[0], 'userid': userid, 'time': x[1]} for x in cursor]
 
-    cnxn.close()
+#     cnxn.close()
 
-    return jsonify({"cards": output})
+#     return jsonify({"cards": output})
 
 # @app.route('/bestcard/<userid>')
 # def get_best(userid):
