@@ -64,5 +64,7 @@ export default function DeckList() {
 
 async function getDeckList(userID) {
     const deckList = await axios.get(`https://flashcard-project-335103.uc.r.appspot.com/user_decks/${userID}`);
+    console.log('keke');
+    console.log(deckList);
     return deckList.data.decks;
 }

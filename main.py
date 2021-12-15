@@ -249,8 +249,8 @@ def cardHistory():
     cnxn.close()
     return jsonify({'status': 'OK'})
 
-@app.route('/analytics/<userid>')
-def analytics(userid):
+@app.route('/user_stats/<userid>')
+def user_stats(userid):
     print(f"ANALYTICS USERID = {userid}")
 
     cnxn = mysql.connector.connect(**config)

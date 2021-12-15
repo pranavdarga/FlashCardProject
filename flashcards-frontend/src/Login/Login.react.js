@@ -29,6 +29,7 @@ export default function Login() {
                 const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com/login', data);
 
                 const status = response.data.status;
+                console.log(response);
 
                 if (status === "OK") {
                     const userid = response.data.userid;
@@ -47,7 +48,7 @@ export default function Login() {
                 const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com/register', data)
                 const status = response.data.status;
 
-                if (status == "OK") {
+                if (status === "OK") {
                     const userid = response.data.userid;
                     setUserID(userid);
                     setPageNumber(PageNumbers.DECK_LIST);
