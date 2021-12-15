@@ -29,7 +29,7 @@ export default function NewDeck() {
             userid: userID, // replace with actual user ID
         };
 
-        axios.post('https://flashcard-project-335103.uc.r.appspot.com/importdeck', data);
+        axios.post('http://127.0.0.1:5000/importdeck', data);
     }
 
     const updateTitle = useCallback((newValue) => {
@@ -55,7 +55,7 @@ export default function NewDeck() {
             cards
         };
 
-        axios.post('https://flashcard-project-335103.uc.r.appspot.com/createdeck', data);
+        axios.post('http://127.0.0.1:5000/createdeck', data);
         setPageNumber(PageNumbers.DECK_LIST);
     }, [cards, deckName, setPageNumber, userID]);
 

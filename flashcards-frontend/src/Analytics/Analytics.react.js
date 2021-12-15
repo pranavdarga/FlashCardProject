@@ -18,7 +18,7 @@ export default function Analytics() {
 
     useEffect(() => {
         async function getNumbers(userid) {
-            const response = await axios.get('https://flashcard-project-335103.uc.r.appspot.com/analytics/1');
+            const response = await axios.get('http://127.0.0.1:5000/analytics/1');
             setResults(response.data);
         }
 
