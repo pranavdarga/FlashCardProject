@@ -42,7 +42,7 @@ export default function DeckList() {
         <div className='container'>
             <div>
                 {deckList.map(deck => <div key={uuidv4()} className='deckEntry' onClick={async () => {
-                    const response = await axios.get(`https://flashcard-project-335103.uc.r.appspot.com/deck_cards/${deck.deckid}`);
+                    const response = await axios.get(`http://127.0.0.1:5000/deck_cards/${deck.deckid}`);
                     const cards = response.data.cards;
                     setCurrentDeckCards(cards);
                     setCurrentDeck(deck);
@@ -63,7 +63,7 @@ export default function DeckList() {
 }
 
 async function getDeckList(userID) {
-    const deckList = await axios.get(`https://flashcard-project-335103.uc.r.appspot.com/user_decks/${userID}`);
+    const deckList = await axios.get(`http://127.0.0.1:5000/user_decks/${userID}`);
     console.log('keke');
     console.log(deckList);
     return deckList.data.decks;

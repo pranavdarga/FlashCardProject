@@ -71,10 +71,10 @@ def get_decks(userid):
             #deck has never been used before
             last_used = "never"
         else:
-            date_now = date.today()
-            delta = date_now - date
-            days_ago = delta.days
-            last_used = " about " + str(days_ago) + " days ago"
+            # date_now = date.today()
+            # delta = date_now - date
+            # days_ago = delta.days
+            last_used = date.strftime("%m/%d/%Y")
 
         deck_data = {'deckid': deckid, 'deckname': deckname, 'num_cards': num_cards[0],
                      'last_reviewed_string': last_used}
