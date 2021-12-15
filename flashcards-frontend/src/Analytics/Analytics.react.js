@@ -18,7 +18,7 @@ export default function Analytics() {
 
     useEffect(() => {
         async function getNumbers(userid) {
-            const response = await axios.get('http://127.0.0.1:5000/analytics/1');
+            const response = await axios.get('http://127.0.0.1:5000/user_stats/1');
             setResults(response.data);
         }
 
