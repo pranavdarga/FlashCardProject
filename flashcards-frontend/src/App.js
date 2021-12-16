@@ -11,6 +11,8 @@ import { useRecoilValue } from 'recoil';
 
 import {PageNumberAtom} from './atoms';
 
+import Header from './Header';
+
 function App() {
   const pages = [
     <Login key={PageNumbers.LOGIN} />,
@@ -24,6 +26,7 @@ function App() {
 
   return (
     <div className="App">
+      <Header />
       {pages[currentPageNumber]}
     </div>
   );

@@ -29,7 +29,7 @@ export default function Login() {
                 const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com/login', data);
 
                 const status = response.data.status;
-                console.log(response);
+                console.log(response.data);
 
                 if (status === "OK") {
                     const userid = response.data.userid;

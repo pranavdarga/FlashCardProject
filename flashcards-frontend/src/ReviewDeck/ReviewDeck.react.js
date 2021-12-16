@@ -37,9 +37,12 @@ function Card({card, userid}) {
 
     return (
         <div className='card' onClick={async () => {
+            const date = new Date();
+            console.log(getLocalISOString(date));
+
             const data = {
                 cardid: card.cardid,
-                time: new Date().toISOString().slice(0, 19).replace('T', ' '),
+                time: getLocalISOString(date).slice(0, 19).replace('T', ' '),
                 userid: userid
             };
             
@@ -55,3 +58,10 @@ function Card({card, userid}) {
         </div>
     );
 }
+
+function getLocalISOString(date) {
+    const offset = date.getTimezoneOffset()
+    const offsetAbs = Math.abs(offset)
+    const isoString = new Date(date.getTime() - offset * 60 * 1000).toISOString()
+    return `${isoString.slice(0, -1)}${offset > 0 ? '-' : '+'}${String(Math.floor(offsetAbs / 60)).padStart(2, '0')}:${String(offsetAbs % 60).padStart(2, '0')}`
+  }

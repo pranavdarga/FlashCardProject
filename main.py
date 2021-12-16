@@ -97,32 +97,6 @@ def get_decks(userid):
 
 #     return jsonify({"cards": output})
 
-# @app.route('/bestcard/<userid>')
-# def get_best(userid):
-#     cnxn = mysql.connector.connect(**config)
-#     cursor = cnxn.cursor()
-
-#     cursor.execute("SELECT cardid, count(time) as a FROM cardHistory WHERE userid=%s group by cardid order by a desc limit 1", (userid,))
-
-#     output = [{'card_id': x[0], 'userid': userid, 'accesses': x[1]} for x in cursor]
-
-#     cnxn.close()
-
-#     return jsonify({"cards": output})
-
-# @app.route('/worstcard/<userid>')
-# def get_worst(userid):
-#     cnxn = mysql.connector.connect(**config)
-#     cursor = cnxn.cursor()
-
-#     cursor.execute("SELECT cardid, count(time) as a FROM cardHistory WHERE userid=%s group by cardid order by a limit 1", (userid,))
-
-#     output = [{'card_id': x[0], 'userid': userid, 'accesses': x[1]} for x in cursor]
-
-#     cnxn.close()
-
-#     return jsonify({"cards": output})
-
 
 @app.route('/deck_cards/<deckid>')
 def get_deck(deckid):
@@ -190,11 +164,18 @@ def login():
     cnxn = mysql.connector.connect(**config)
     cursor = cnxn.cursor()
 
-    cursor.execute("SELECT * FROM accounts WHERE username=%s AND password=%s", (username_from_user, password_from_user))
+    #transaction #1
+    data = (username_from_user, password_from_user)
+    #cursor.execute("set transaction isolation level read committed;")
+    #cursor.execute("start transaction;")
+    cursor.execute("SELECT * FROM accounts WHERE username=%s AND password=%s;", data)
 
     userid = INVALID_USER_ID
     for t in cursor:
         userid, _, _ = t
+
+    #cursor.execute("commit;")
+
 
     cnxn.close()
     
@@ -231,6 +212,7 @@ def register():
             cursor.execute("SELECT * FROM accounts WHERE userid = %s", (userid, ))
 
         cursor.execute("INSERT INTO accounts (userid, username, password) VALUES (%s, %s, %s)", (userid, username_from_user, password_from_user))
+
         cnxn.commit()
         cnxn.close()
         return jsonify({'status': 'OK', 'userid': userid})
