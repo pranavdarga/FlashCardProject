@@ -103,7 +103,7 @@ def get_deck(deckid):
     cnxn = mysql.connector.connect(**config)
     cursor = cnxn.cursor()
     
-    cursor.execute("SELECT cardid, question, answer, topic FROM cards WHERE deckid=%s", (deckid, ))
+    cursor.execute("call DeckCards(%s);", (deckid, ))
 
     output = [{'cardid': x[0], 'deckid': deckid, 'question': x[1], 'answer': x[2], 'topic': x[3]} for x in cursor]
 
@@ -168,7 +168,7 @@ def login():
     data = (username_from_user, password_from_user)
     #cursor.execute("set transaction isolation level read committed;")
     #cursor.execute("start transaction;")
-    cursor.execute("SELECT * FROM accounts WHERE username=%s AND password=%s;", data)
+    cursor.execute("call login(%s, %s);", data)
 
     userid = INVALID_USER_ID
     for t in cursor:
@@ -245,12 +245,20 @@ def user_stats(userid):
 
     card_table = []
     for d, deckname in decks:
+        cnxn.close()
+        
+        cnxn = mysql.connector.connect(**config)
+        cursor = cnxn.cursor(buffered=True)
         # least used card in deck
-        cursor.execute("select question, answer, topic from (select c.cardid, c.deckid, c.question, c.answer, c.topic, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where d.deckid = %s order by count limit 1;", (d, ))
+        cursor.execute("CALL LeastUsedCard(%s)", (d, ))
         least_used_card = [t for t in cursor]
         
+        cnxn.close()
+        
+        cnxn = mysql.connector.connect(**config)
+        cursor = cnxn.cursor(buffered=True)
         # most used card in deck
-        cursor.execute("select question, answer, topic from (select c.cardid, c.deckid, c.question, c.answer, c.topic, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where d.deckid = %s order by count desc limit 1;", (d, ))
+        cursor.execute("CALL MostUsedCard(%s)", (d, ))
         most_used_card = [t for t in cursor]
 
         card_table.append([deckname, least_used_card, most_used_card])
@@ -259,14 +267,22 @@ def user_stats(userid):
     print(card_table)
 
     #least viewed deck
-    cursor.execute("select d.deckname from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count limit 1", (userid, ))
+    cnxn.close()
+        
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor(buffered=True)
+    cursor.execute("CALL LeastViewedDeck(%s)", (userid, ))
     if cursor.rowcount == 0:
         least = {'deckname' : 'none'}
     else:
         least = [{'deckname' : x[0]} for x in cursor][0]
     
     # most viewed deck
-    cursor.execute("select d.deckname from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count DESC limit 1", (userid, ))
+    cnxn.close()
+        
+    cnxn = mysql.connector.connect(**config)
+    cursor = cnxn.cursor(buffered=True)
+    cursor.execute("CALL MostViewedDeck(%s)", (userid, ))
     if cursor.rowcount == 0:
         most = {'deckname': 'none'}
     else:
