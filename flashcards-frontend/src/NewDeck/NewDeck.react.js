@@ -29,7 +29,7 @@ export default function NewDeck() {
             userid: userID, // replace with actual user ID
         };
 
-        axios.post('https://flashcard-project-335103.uc.r.appspot.com/importdeck', data);
+        axios.post('https://flashcard-project-335103.uc.r.appspot.com//importdeck', data);
     }
 
     const updateTitle = useCallback((newValue) => {
@@ -48,14 +48,14 @@ export default function NewDeck() {
         // API call to change deck here
     }, [cards, currentCardBack, currentCardFront, currentCardTopic]);
 
-    const saveDeck = useCallback(() => {
+    const saveDeck = useCallback(async () => {
         const data = {
             deckname: deckName,
             userid: userID, // replace with actual user ID
             cards
         };
 
-        axios.post('https://flashcard-project-335103.uc.r.appspot.com/createdeck', data);
+        await axios.post('https://flashcard-project-335103.uc.r.appspot.com//createdeck', data);
         setPageNumber(PageNumbers.DECK_LIST);
     }, [cards, deckName, setPageNumber, userID]);
 

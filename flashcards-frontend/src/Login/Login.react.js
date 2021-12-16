@@ -26,7 +26,7 @@ export default function Login() {
                     password
                 };
         
-                const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com/login', data);
+                const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com//login', data);
 
                 const status = response.data.status;
                 console.log(response.data);
@@ -45,7 +45,7 @@ export default function Login() {
                     password
                 };
 
-                const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com/register', data)
+                const response = await axios.post('https://flashcard-project-335103.uc.r.appspot.com//register', data)
                 const status = response.data.status;
 
                 if (status === "OK") {

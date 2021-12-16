@@ -8,7 +8,7 @@ import {v4 as uuidv4} from 'uuid';
 
 export default function DeckList() {
     const userID = useRecoilValue(UserIDAtom);
-    const setPageNumber = useSetRecoilState(PageNumberAtom);
+    const [pageNumber, setPageNumber] = useRecoilState(PageNumberAtom);
     const [currentDeckCards, setCurrentDeckCards] = useRecoilState(CurrentDeckCards);
     const resetUserID = useResetRecoilState(UserIDAtom);
 
@@ -25,7 +25,7 @@ export default function DeckList() {
         }
 
         updateDeckList();
-    }, [userID]);
+    }, [userID, pageNumber]);
 
     useEffect(() => {
         async function updateDeckList() {
@@ -41,12 +41,14 @@ export default function DeckList() {
     return (
         <div className='container'>
             <div>
-                {deckList.map(deck => <div key={uuidv4()} className='deckEntry' onClick={async () => {
-                    const response = await axios.get(`https://flashcard-project-335103.uc.r.appspot.com/deck_cards/${deck.deckid}`);
+                {deckList.map(deck => {
+                return deck.num_cards === 0 ? null : (
+                <div key={uuidv4()} className='deckEntry' onClick={async () => {
+                    const response = await axios.get(`https://flashcard-project-335103.uc.r.appspot.com//deck_cards/${deck.deckid}`);
                     const cards = response.data.cards;
                     setCurrentDeckCards(cards);
                     setCurrentDeck(deck);
-                }}>{deck.deckname} ({deck.num_cards} cards, last reviewed {deck.last_reviewed_string})</div>)}
+                }}>{deck.deckname} ({deck.num_cards} cards, last reviewed {deck.last_reviewed_string})</div>)})}
             </div>
             <button onClick={() => {
                 setPageNumber(PageNumbers.LOGIN);
@@ -63,7 +65,7 @@ export default function DeckList() {
 }
 
 async function getDeckList(userID) {
-    const deckList = await axios.get(`https://flashcard-project-335103.uc.r.appspot.com/user_decks/${userID}`);
+    const deckList = await axios.get(`https://flashcard-project-335103.uc.r.appspot.com//user_decks/${userID}`);
     console.log('keke');
     console.log(deckList);
     return deckList.data.decks;

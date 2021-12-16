@@ -238,7 +238,7 @@ def user_stats(userid):
     cnxn = mysql.connector.connect(**config)
     cursor = cnxn.cursor(buffered=True)
 
-    cursor.execute("select deckid, deckname from decks where userid = %s", (userid, ))
+    cursor.execute("SELECT d1.deckid, d1.deckname FROM decks d1 JOIN DeckUsers d2 ON d1.deckid=d2.deckid WHERE d2.userid=%s;", (userid, ))
     decks = []
     for line in cursor:
         decks.append(line)
@@ -260,11 +260,17 @@ def user_stats(userid):
 
     #least viewed deck
     cursor.execute("select d.deckname from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count limit 1", (userid, ))
-    least = [{'deckname' : x[0]} for x in cursor][0]
+    if cursor.rowcount == 0:
+        least = {'deckname' : 'none'}
+    else:
+        least = [{'deckname' : x[0]} for x in cursor][0]
     
     # most viewed deck
     cursor.execute("select d.deckname from (select c.cardid, c.deckid, count(time) as count from cards c left join cardHistory ch on c.cardid = ch.cardid group by c.cardid) as r join decks d on r.deckid = d.deckid where userid = %s order by count DESC limit 1", (userid, ))
-    most = [{'deckname' : x[0]} for x in cursor][0]
+    if cursor.rowcount == 0:
+        most = {'deckname': 'none'}
+    else:
+        most = [{'deckname' : x[0]} for x in cursor][0]
 
     cnxn.close()
     return jsonify({'status': 'OK', 'least_deck': least, 'most_deck': most, 'card_table': card_table})
